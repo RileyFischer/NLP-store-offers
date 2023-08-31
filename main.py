@@ -9,49 +9,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
-if st.checkbox('See how the scores are calculated'):
-    st.subheader('Notation')
-    st.write("$C:=$The list of all possible categories")
-    st.write("$c:=$A category within C")
-    st.write("$RC(brand):=$The relevant categories of the brand. A category is relevant if it shares the same parent category as the categories that the brand has receipts for.")
-    st.write("$r(c,b):=$number of receipts for categroy c and brand")
-    st.write("$s(offer):=$The semantic similarity of the search to the offer")
-    st.write("$s(brand):=$The semantic similarity of the search to the brand")
-    st.write("$s(retailer):=$The semantic similarity of the search to the retailer")
-    st.write("$s(c):=$The semantic similarity of the search to the category c")
-    st.divider()
-    
-    st.subheader('This is how the score is calculated when searching by category')
-    st.latex(r'''
-    score|offer,brand= \frac{s(offer)+\sum_{c\in RC(brand)}\sqrt{\left(\frac{r(c,brand)}{\sum_{c\in C}r(c,brand)}\right)\left(s(c
-)\right)}}{2}
-    ''')
-    st.divider()
-    
-    st.subheader('This is how the score is calculated when searching by brand')
-    st.latex(r'''
-    score|offer,brand= \frac{s(offer)+\sqrt{\left(s(brand)\right)\sum_{c\in C}\sqrt{\left(\frac{r(c,search)}{\sum_{c\in C}r(c,search)}\right)\left(\frac{r(c,brand)}{\sum_{c\in RC(brand)}r(c,brand)}\right)}}}{2} 
-    ''')
-    st.write("where")
-    st.latex(r'''
-    \sum_{c\in C}\sqrt{\left(\frac{r(c,search)}{\sum_{c\in C}r(c,search)}\right)\left(\frac{r(c,brand)}{\sum_{c\in RC(brand)}r(c,brand)}\right)}
-    ''')
-    st.write("represents the similarity of the originaly searched brand to some other brand by taking into account the Receipts column. For example if the searched brand was Dr. Pepper, the receipts column shows us that Dr. Pepper is 87% carbonated soft drinks and 13% cooking & baking. Therefor some other brand has a value of 1 for this expression if that brand also is 87% carbonated soft drinks and 13% cooking & baking, and somewhere between 0 and 1 if it has a different percentage of carbonated soft drinks and cooking & baking")
-    st.divider()
-    
-    st.subheader('This is how the score is calculated when searching by retailer')
-    st.latex(r'''
-    score|offer,brand,retailer=\frac{s(offer)+s(brand)+s(retailer)}{3}
-    ''')
-    st.divider()
 
-    st.subheader('Notes')
-    st.write("-One assumption I made is the the receipts column coresponds to the number of times an offer within that category for the brand has been used.")
-    st.write("-For the cosine similarity score I used the sentence transformer \"multi-qa-mpnet-base-cos-v1\" on the offers, brands, retailer, and search strings. I then measured the similarity of vectors from the sentence transformer by using cosine similarity.")
-    st.write("-The use of the square roots and dividing by 2 or 3 is put in place so that all scores have a range of -1 to 1.")
-    st.write("-Each search will score every possible offer. While we would want to limit the number of offers to just show a few of the top scoring offers, by scoring every offer it is possible for the user to keep scrolling through offers untill they find one they like.")
-    st.write("-For each score I am using multiple metrics and combining them. For example in the retailer score I just combine all three and weigh them equally. While this seems to be effective, I think if there was more data and true score metric that it would be a good idea to work on developing a model to treat each metric as a seperate feature and find how they can be combined in a more thoughtful way to reach a final score metric.")
-    st.write("-Brands are treated equally regardless of their total number of receipts. The benefit of this is that the offers presented are based on relevance so we should always be getting the most relevant offer possible. However this can be bad since people are less likely to shop at small brands, therefor having the list be flooded with small brands compared to large brands makes the offers less relevant to the person. I choose to assume people would be just as interested in offers from small brands compared to large brands, but in reality I think it would make sense to assume people prefer offers from large brands since more people already shop there.")
     
     
     
@@ -132,9 +90,19 @@ brand=data_preprocessing()
 
 my_bar.progress(60, text=progress_text)
 
+#create a dictionary with parent categories and a list of their children categories
+categories={}
+parents=cat.IS_CHILD_CATEGORY_TO.unique()
+for parent in parents:
+    categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
 
+#create a dictionary with categories and a list of the brands that have receipts for that category.
+brands={}
+parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
+for parent in parents:
+    brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
 
-
+my_bar.progress(70, text=progress_text)
 
 # # 1. searches by category
 parents=cat.IS_CHILD_CATEGORY_TO.unique()
@@ -142,18 +110,6 @@ children=cat.PRODUCT_CATEGORY.unique()
 
 @st.cache_data
 def search_category(search):
-        #create a dictionary with parent categories and a list of their children categories
-    categories={}
-    parents=cat.IS_CHILD_CATEGORY_TO.unique()
-    for parent in parents:
-        categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
-
-    #create a dictionary with categories and a list of the brands that have receipts for that category.
-    brands={}
-    parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
-    for parent in parents:
-        brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
-        
     #create a similarity df for the search and all category name's
     vectors=model.encode(list(cat['PRODUCT_CATEGORY']))
     cosine=cosine_similarity(model.encode([search]), vectors)

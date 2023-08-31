@@ -23,8 +23,8 @@ if st.checkbox('See how the scores are calculated'):
     
     st.subheader('This is how the score is calculated when searching by category')
     st.latex(r'''
-    score|offer,brand= \frac{s(offer)+\sum_{c\in RC(brand)}\sqrt{\left(\frac{r(c,brand)}{\sum_{c\in C}r(c,brand)}\right)\left(s(c
-)\right)}}{2}
+    score|offer,brand= \frac{s(offer)+\sum_{c\in RC(brand)}\left[\left(\frac{r(c,brand)}{\sum_{c\in C}r(c,brand)}\right)\left(s(c
+)\right)\right]}{2}
     ''')
     st.divider()
     

@@ -20,19 +20,19 @@ Acceptance Criteria:
 
 ### Streamlit app:
 1.Clone repository:
-    ```
+```
    git clone https://github.com/RileyFischer/NLP-store-offers
    ```
 2.Go to directory:
-   ```
+```
    cd (directory location)
    ```
 3. install libraries:
-   ```
+```
    pip install -r requirements.txt
    ```
 4. run streamlit app:
-   ```
+```
    streamlit run main.py
    ```
 ### Explore code:

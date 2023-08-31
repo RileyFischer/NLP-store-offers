@@ -1,6 +1,5 @@
 sentence-transformers
 sklearn
 streamlit
-re
 warnings
 pandas

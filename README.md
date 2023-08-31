@@ -20,15 +20,15 @@ Acceptance Criteria:
     ```
    git clone https://github.com/RileyFischer/NLP-store-offers\
    ```
-3. Go to directory:
+2. Go to directory:
    ```
    cd (directory location)
    ```
-5. install libraries:
+3. install libraries:
    ```
    pip install -r requirements.txt
    ```
-7. run streamlit app:
+4. run streamlit app:
    ```
    streamlit run main.py
    ```

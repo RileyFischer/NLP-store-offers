@@ -180,7 +180,7 @@ def search_category(search):
     possible_brands=possible_brands.merge(sim,left_on="BRAND_BELONGS_TO_CATEGORY",right_on="PRODUCT_CATEGORY")
     #Then multiply the weights to get a score that also takes into account how similar the brand is to the original search
     possible_brands["cat_Score"]=possible_brands["MULTIPLIER"]*possible_brands["Cosine"]
-    possible_brands=possible_brands.groupby("BRAND").sum("cat_Score")#This score represents how likely the brand has offers related to the search term
+    possible_brands=possible_brands.groupby("BRAND").sum()#This score represents how likely the brand has offers related to the search term
     #find the offers from the brands above
     possible_offers=offer.merge(possible_brands,how="left", left_on='BRAND', right_on='BRAND')
     possible_offers=possible_offers.drop(columns=["MULTIPLIER","Cosine","RECEIPTS"])
@@ -226,7 +226,7 @@ def search_brand(search):
     possible_brands=brand[brand["BRAND_BELONGS_TO_CATEGORY"].isin(ca)]
     possible_brands=possible_brands.merge(find_brand_multiplier(search),left_on="BRAND_BELONGS_TO_CATEGORY",right_on="BRAND_BELONGS_TO_CATEGORY")
     possible_brands["MULTIPLIER"]=(possible_brands["MULTIPLIER_x"]*possible_brands["MULTIPLIER_y"])**.5
-    possible_brands=possible_brands.groupby("BRAND").sum("MULTIPLIER")
+    possible_brands=possible_brands.groupby("BRAND").sum()
     possible_offers=offer.merge(possible_brands,how='left',left_on='BRAND', right_on='BRAND')
     
     possible_offers=possible_offers.merge(sim,how='left',left_on='BRAND', right_on='BRAND')

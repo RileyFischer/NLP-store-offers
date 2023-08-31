@@ -43,8 +43,8 @@ $s(c):=$ The semantic similarity of the search to the category c.
     
 # This is how the score is calculated when searching by category
     
-$$score|offer,brand= \frac{s(offer)+\sum_{c\in RC(brand)}\sqrt{\left(\frac{r(c,brand)}{\sum_{c\in C}r(c,brand)}\right)\left(s(c
-)\right)}}{2}$$
+$$score|offer,brand= \frac{s(offer)+\sum_{c\in RC(brand)}\left[\left(\frac{r(c,brand)}{\sum_{c\in C}r(c,brand)}\right)\left(s(c
+)\right)\right]}{2}$$
     
 # This is how the score is calculated when searching by brand
     

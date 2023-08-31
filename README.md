@@ -18,7 +18,7 @@ Acceptance Criteria:
 # How to run 
 1. Clone repository:
     ```
-   git clone https://github.com/RileyFischer/NLP-store-offers\
+   git clone https://github.com/RileyFischer/NLP-store-offers
    ```
 2. Go to directory:
    ```

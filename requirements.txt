@@ -1,4 +1,4 @@
 sentence-transformers
 scikit-learn
-streamlit
+streamlit>=1.10.0
 pandas

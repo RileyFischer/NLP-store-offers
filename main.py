@@ -9,7 +9,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
-if st.button("See how the scores are calculated", type="primary"):
+if st.checkbox('See how the scores are calculated'):
     st.subheader('Notation')
     st.write("$C:=$The list of all possible categories")
     st.write("$c:=$A category within C")

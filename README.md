@@ -15,6 +15,9 @@ Acceptance Criteria:
 
 - **The tool should also return the score that was used to measure the similarity of the text input with each offer**
 
+# How to run 
+download
+
 # Features
 
 - **Streamlit based web interface**

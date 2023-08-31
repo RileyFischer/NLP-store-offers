@@ -62,7 +62,7 @@ my_bar = st.progress(0, text=progress_text)
 def loadmodel():
     model = SentenceTransformer('multi-qa-mpnet-base-cos-v1')
     return model
-model=loadmodel
+model=loadmodel()
 
 
 brand=pd.read_csv("brand_category.csv")

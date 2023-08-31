@@ -1,1 +1,6 @@
 SentenceTransformer
+sklearn
+streamlit
+re
+warnings
+pandas

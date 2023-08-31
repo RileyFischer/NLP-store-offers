@@ -16,7 +16,23 @@ Acceptance Criteria:
 - **The tool should also return the score that was used to measure the similarity of the text input with each offer**
 
 # How to run 
-download
+1. Clone repository:
+    ```
+   git clone https://github.com/RileyFischer/NLP-store-offers\
+   ```
+3. Go to directory:
+   ```
+   cd (directory location)
+   ```
+5. install libraries:
+   ```
+   pip install -r requirements.txt
+   ```
+7. run streamlit app:
+   ```
+   streamlit run main.py
+   ```
+
 
 # Features
 

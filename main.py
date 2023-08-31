@@ -10,11 +10,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
 
-    
-    
-    
-progress_text = "Loading in data and tools"
-my_bar = st.progress(0, text=progress_text)
 
 @st.cache_data
 def loadmodel():
@@ -75,7 +70,6 @@ def find_brand_multiplier(b):
     df=df[["BRAND_BELONGS_TO_CATEGORY","MULTIPLIER"]]
     return df
 
-my_bar.progress(40, text=progress_text)
 
 @st.cache_data
 def data_preprocessing():
@@ -88,21 +82,29 @@ def data_preprocessing():
 brand=data_preprocessing()
 
 
-my_bar.progress(60, text=progress_text)
 
 #create a dictionary with parent categories and a list of their children categories
-categories={}
-parents=cat.IS_CHILD_CATEGORY_TO.unique()
-for parent in parents:
-    categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
+@st.cache_data
+def loadcategories():
+    categories={}
+    parents=cat.IS_CHILD_CATEGORY_TO.unique()
+    for parent in parents:
+        categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
+    return categories
+categories=loadcategories()
 
 #create a dictionary with categories and a list of the brands that have receipts for that category.
-brands={}
-parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
-for parent in parents:
-    brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
+@st.cache_data
+def loadbrands():
+    brands={}
+    parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
+    for parent in parents:
+        brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
+    return brands
+brands=loadbrands()
 
-my_bar.progress(70, text=progress_text)
+    
+
 
 # # 1. searches by category
 parents=cat.IS_CHILD_CATEGORY_TO.unique()
@@ -158,7 +160,7 @@ def search_category(search):
 
 
 
-my_bar.progress(80, text=progress_text)
+
 
 
 # # 2. Searches by Brand
@@ -209,7 +211,7 @@ def search_brand(search):
     return possible_offers.reset_index(drop=True)
 
 
-my_bar.progress(90, text=progress_text)
+
 
 
 # # 3. Searches by Retailer
@@ -236,8 +238,7 @@ def search_Retailer(search):
 
     return possible_offers.reset_index(drop=True)
 
-my_bar.progress(100, text="Data and tools sucessfully loaded.")
-my_bar.empty()
+
 
 
 search_type = st.selectbox(

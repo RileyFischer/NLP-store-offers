@@ -123,22 +123,23 @@ def search_category(search):
     possible_cats=[]
     for c in top_sim:
         if c in parents:
-            possible_cats=categories[search].copy()
-            possible_cats.append(search)
+            possible_cats.append(categories[c].copy())
+            possible_cats.append([c])
 
         if c in children:
             for possible_cat in categories:
                 if c in categories[possible_cat]:
                     c2=possible_cat
-            possible_cats=categories[c2].copy()
-            possible_cats.append(c2)
+            possible_cats.append(categories[c2].copy())
+            possible_cats.append([c2])
+    possible_cats = [item for sublist in possible_cats for item in sublist] 
 
     #find the brands associated with these categories and weigh the brand by the number of their recipts are from these categories
     possible_brands=brand.copy(deep=True)
     possible_brands.loc[~possible_brands["BRAND_BELONGS_TO_CATEGORY"].isin(possible_cats), "MULTIPLIER"]=0
     possible_brands=possible_brands.merge(sim,left_on="BRAND_BELONGS_TO_CATEGORY",right_on="PRODUCT_CATEGORY")
     #Then multiply the weights to get a score that also takes into account how similar the brand is to the original search
-    possible_brands["cat_Score"]=(possible_brands["MULTIPLIER"]*possible_brands["Cosine"])**.5
+    possible_brands["cat_Score"]=(possible_brands["MULTIPLIER"]*possible_brands["Cosine"])
     possible_brands=possible_brands.groupby("BRAND").sum("cat_Score")#This score represents how likely the brand has offers related to the search term
     #find the offers from the brands above
     possible_offers=offer.merge(possible_brands,how="left", left_on='BRAND', right_on='BRAND')

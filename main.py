@@ -110,7 +110,7 @@ brands=loadbrands()
 parents=cat.IS_CHILD_CATEGORY_TO.unique()
 children=cat.PRODUCT_CATEGORY.unique()
 
-@st.cache_data
+
 def search_category(search):
     #create a similarity df for the search and all category name's
     vectors=model.encode(list(cat['PRODUCT_CATEGORY']))
@@ -165,7 +165,7 @@ def search_category(search):
 
 
 # # 2. Searches by Brand
-@st.cache_data
+
 def search_brand(search):
     #create a similarity df for the search and all brand names
     vectors=model.encode(list(set(brand["BRAND"].values)))
@@ -216,7 +216,7 @@ def search_brand(search):
 
 
 # # 3. Searches by Retailer
-@st.cache_data
+
 def search_Retailer(search):
     vectors=model.encode(list(offer['OFFER']))
     cosine=cosine_similarity(model.encode([search]), vectors)
@@ -245,37 +245,34 @@ def search_Retailer(search):
 search_type = st.selectbox(
     'How would you like to search for an offer?',
     ('Category', 'Brand', 'Retailer'))
-
+n=None
 if search_type=='Category':
     search = st.text_input('Category name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        df=search_category(search)
-        if n:
+    n=st.number_input('How many offers would you like?',step=1)
+    if n:
+        if search!='':
+            df=search_category(search)
             st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
-    
+            
+
 if search_type=='Brand':
     search = st.text_input('Brand name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        st.write('This may take a minute or two for Brand search.')
-        df=search_brand(search)
-        if n:
+    n=st.number_input('How many offers would you like?',step=1)
+    if n:
+        if search!='':
+            st.write('This may take a minute or two for Brand search.')
+            df=search_brand(search)
             st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
+            
             
 if search_type=='Retailer':
     search = st.text_input('Retailer name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        df=search_Retailer(search)
-        if n:
+    n=st.number_input('How many offers would you like?',step=1)
+    if n:
+        if search!='':
+            df=search_Retailer(search)
             st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
+        
             
             
 

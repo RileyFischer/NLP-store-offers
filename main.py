@@ -58,8 +58,13 @@ if st.checkbox('See how the scores are calculated'):
 progress_text = "Loading in data and tools"
 my_bar = st.progress(0, text=progress_text)
 
+@st.cache_data
+def loadmodel():
+    model = SentenceTransformer('multi-qa-mpnet-base-cos-v1')
+    return model
+model=loadmodel
 
-model = SentenceTransformer('multi-qa-mpnet-base-cos-v1')
+
 brand=pd.read_csv("brand_category.csv")
 cat=pd.read_csv("categories.csv")
 offer=pd.read_csv("offer_retailer.csv")
@@ -98,9 +103,9 @@ brand['BRAND']=brand['BRAND'].apply(lambda x: re.sub(pattern, '', x))
 # remove duplicate rows in the offers(sometimes there are duplicates from capitalization or special characters)
 offer=offer.drop_duplicates()
 
-
 #replace nan
 offer=offer.replace('nan','')
+    
 
 
 

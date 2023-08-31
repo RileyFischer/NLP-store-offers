@@ -65,47 +65,47 @@ def loadmodel():
 model=loadmodel()
 
 
-brand=pd.read_csv("brand_category.csv")
-cat=pd.read_csv("categories.csv")
-offer=pd.read_csv("offer_retailer.csv")
-
 
 # # Data cleaning. Remove capitalization, special characters, and duplicate rows
 #Remove capitalization
-cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].str.lower()
-cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].str.lower()
-
-offer["OFFER"]=offer["OFFER"].str.lower()
-offer["RETAILER"]=offer["RETAILER"].str.lower()
-offer["BRAND"]=offer["BRAND"].str.lower()
-
-
-brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].str.lower()
-brand["BRAND"]=brand["BRAND"].str.lower()
-
-#Remove special characters
-brand['BRAND']=brand['BRAND'].astype(str)
-offer["RETAILER"]=offer["RETAILER"].astype(str)
 pattern = r'[^\w\s]'
+@st.cache_data
+def loadbrand():
+    brand=pd.read_csv("brand_category.csv")
+    brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].str.lower()
+    brand["BRAND"]=brand["BRAND"].str.lower()
+    brand['BRAND']=brand['BRAND'].astype(str)
+    brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
+    brand['BRAND']=brand['BRAND'].apply(lambda x: re.sub(pattern, '', x))
+    return brand
+brand=loadbrand()
 
-my_bar.progress(30, text=progress_text)
-
-cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].apply(lambda x: re.sub(pattern, '', x))
-cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
-
-offer["OFFER"]=offer["OFFER"].apply(lambda x: re.sub(pattern, '', x))
-offer["RETAILER"]=offer["RETAILER"].apply(lambda x: re.sub(pattern, '', x))
-offer["BRAND"]=offer["BRAND"].apply(lambda x: re.sub(pattern, '', x))
-
-brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
-brand['BRAND']=brand['BRAND'].apply(lambda x: re.sub(pattern, '', x))
-
-# remove duplicate rows in the offers(sometimes there are duplicates from capitalization or special characters)
-offer=offer.drop_duplicates()
-
-#replace nan
-offer=offer.replace('nan','')
+@st.cache_data
+def loadcat():
+    cat=pd.read_csv("categories.csv")
+    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].str.lower()
+    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].str.lower()
+    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].apply(lambda x: re.sub(pattern, '', x))
+    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
+    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].apply(lambda x: re.sub(pattern, '', x))
+    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
+    return cat
+cat=loadcat()
     
+@st.cache_data
+def loadoffer():
+    offer=pd.read_csv("offer_retailer.csv")
+    offer["OFFER"]=offer["OFFER"].str.lower()
+    offer["RETAILER"]=offer["RETAILER"].str.lower()
+    offer["BRAND"]=offer["BRAND"].str.lower()
+    offer["RETAILER"]=offer["RETAILER"].astype(str)
+    offer["OFFER"]=offer["OFFER"].apply(lambda x: re.sub(pattern, '', x))
+    offer["RETAILER"]=offer["RETAILER"].apply(lambda x: re.sub(pattern, '', x))
+    offer["BRAND"]=offer["BRAND"].apply(lambda x: re.sub(pattern, '', x))
+    offer=offer.drop_duplicates()
+    offer=offer.replace('nan','')
+    return offer
+offer=loadoffer()
 
 
 
@@ -132,23 +132,9 @@ brand=data_preprocessing()
 
 my_bar.progress(60, text=progress_text)
 
-#create a dictionary with parent categories and a list of their children categories
-categories={}
-parents=cat.IS_CHILD_CATEGORY_TO.unique()
-for parent in parents:
-    categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
 
 
 
-
-
-#create a dictionary with categories and a list of the brands that have receipts for that category.
-brands={}
-parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
-for parent in parents:
-    brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
-
-my_bar.progress(70, text=progress_text)
 
 # # 1. searches by category
 parents=cat.IS_CHILD_CATEGORY_TO.unique()
@@ -156,6 +142,18 @@ children=cat.PRODUCT_CATEGORY.unique()
 
 @st.cache_data
 def search_category(search):
+        #create a dictionary with parent categories and a list of their children categories
+    categories={}
+    parents=cat.IS_CHILD_CATEGORY_TO.unique()
+    for parent in parents:
+        categories[parent]=list(cat[cat["IS_CHILD_CATEGORY_TO"]==parent].PRODUCT_CATEGORY.values)
+
+    #create a dictionary with categories and a list of the brands that have receipts for that category.
+    brands={}
+    parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
+    for parent in parents:
+        brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
+        
     #create a similarity df for the search and all category name's
     vectors=model.encode(list(cat['PRODUCT_CATEGORY']))
     cosine=cosine_similarity(model.encode([search]), vectors)

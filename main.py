@@ -159,7 +159,7 @@ def search_category(search):
     sim['Cosine']=cosine.reshape(-1, 1)
     
     #Of the categories that are similar to the search, find all of the categories that also share a parent category.
-    top_sim=list(sim.nlargest(3, 'Cosine')['PRODUCT_CATEGORY'].values)
+    top_sim=list(sim.nlargest(1, 'Cosine')['PRODUCT_CATEGORY'].values)
     possible_cats=[]
     for c in top_sim:
         if c in parents:
@@ -173,14 +173,13 @@ def search_category(search):
             possible_cats.append(categories[c2].copy())
             possible_cats.append([c2])
     possible_cats = [item for sublist in possible_cats for item in sublist] 
-
     #find the brands associated with these categories and weigh the brand by the number of their recipts are from these categories
     possible_brands=brand.copy(deep=True)
     possible_brands.loc[~possible_brands["BRAND_BELONGS_TO_CATEGORY"].isin(possible_cats), "MULTIPLIER"]=0
     possible_brands=possible_brands.merge(sim,left_on="BRAND_BELONGS_TO_CATEGORY",right_on="PRODUCT_CATEGORY")
     #Then multiply the weights to get a score that also takes into account how similar the brand is to the original search
     possible_brands["cat_Score"]=possible_brands["MULTIPLIER"]*possible_brands["Cosine"]
-    possible_brands=possible_brands.groupby("BRAND").sum()#This score represents how likely the brand has offers related to the search term
+    possible_brands=possible_brands.groupby("BRAND").sum("cat_Score")#This score represents how likely the brand has offers related to the search term
     #find the offers from the brands above
     possible_offers=offer.merge(possible_brands,how="left", left_on='BRAND', right_on='BRAND')
     possible_offers=possible_offers.drop(columns=["MULTIPLIER","Cosine","RECEIPTS"])
@@ -245,7 +244,7 @@ def search_brand(search):
     possible_offers=possible_offers.merge(sim,on=["OFFER","RETAILER","BRAND"])
 
     possible_offers["Score"]=(possible_offers["Brand_Score"]+possible_offers["Cosine"])/2
-    possible_offers=possible_offers.drop(columns=["Brand_Score","Cosine","MULTIPLIER_x","MULTIPLIER_y","RECEIPTS"])
+    possible_offers=possible_offers.drop(columns=["Brand_Score","Cosine","BRAND_BELONGS_TO_CATEGORY","MULTIPLIER_x","MULTIPLIER_y","RECEIPTS"])
     
     possible_offers=possible_offers.sort_values(by=['Score'],ascending=False)
     

@@ -15,6 +15,16 @@ Acceptance Criteria:
 
 - **The tool should also return the score that was used to measure the similarity of the text input with each offer**
 
+
+# Examples:
+
+![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/44df2b07-ef03-4325-b613-686e6a3983ce)
+___
+![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/ba1fb8c3-8036-4484-b5ff-ceca26dcfb7d)
+___
+![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/75a61248-fabe-46cc-8472-81a365228536)
+
+
 # How to run 
 
 

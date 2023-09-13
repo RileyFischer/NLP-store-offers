@@ -46,7 +46,7 @@ Acceptance Criteria:
 - **Streamlit based web interface**
 - **Data Cleaning**
 - **Semantic similarity**: Using pretrained models to find the semantic similarity of text.
-- **Feature engineering**: making full use of all of the data present for more relevant offers.
+- **Social Network Analysis**: Using the relationship of categories to create and use a social network and grouping searches into relevant categories.
 
 # Results:
 

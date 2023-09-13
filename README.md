@@ -1,5 +1,5 @@
 # NLP-store-offers
-This is my work for the Fetch Rewards Data Scientist(NLP) problem. Here is the instructions:
+This is my work for the Fetch Rewards NLP challenge. Here is the instructions:
 
 You will build a tool that allows users to intelligently search for offers via text input from the user.
 

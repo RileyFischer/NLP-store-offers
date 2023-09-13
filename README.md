@@ -1,7 +1,7 @@
 # NLP-store-offers
-This is my work for the Fetch Rewards Data Scientist(NLP) take home exam I did. Here is the instructions for the assignment:
+This is my work for the Fetch Rewards Data Scientist(NLP) problem. Here is the instructions:
 
-For this assignment, you will build a tool that allows users to intelligently search for offers via text input from the user.
+You will build a tool that allows users to intelligently search for offers via text input from the user.
 
 You will be provided with a dataset of offers and some associated metadata around the retailers and brands that are sponsoring the offer. You will also be provided with a dataset of some brands that we support on our platform, and the categories that those products belong to.
 

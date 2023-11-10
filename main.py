@@ -60,52 +60,62 @@ my_bar = st.progress(0, text=progress_text)
 
 @st.cache_data
 def loadmodel():
-    model = SentenceTransformer('multi-qa-mpnet-base-cos-v1')
+    model=SentenceTransformer('multi-qa-mpnet-base-cos-v1')
     return model
 model=loadmodel()
 
 
-
-# # Data cleaning. Remove capitalization, special characters, and duplicate rows
+# # Load in cleaned data. Remove capitalization, special characters, and duplicate rows as seen in "Create processed data.ipynb"
 #Remove capitalization
-pattern = r'[^\w\s]'
+
 @st.cache_data
 def loadbrand():
-    brand=pd.read_csv("brand_category.csv")
-    brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].str.lower()
-    brand["BRAND"]=brand["BRAND"].str.lower()
-    brand['BRAND']=brand['BRAND'].astype(str)
-    brand["BRAND_BELONGS_TO_CATEGORY"]=brand["BRAND_BELONGS_TO_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
-    brand['BRAND']=brand['BRAND'].apply(lambda x: re.sub(pattern, '', x))
+    brand=pd.read_csv("brand_category_clean.csv")
+    brand["BRAND"]=brand["BRAND"].apply(str)
     return brand
 brand=loadbrand()
 
 @st.cache_data
 def loadcat():
-    cat=pd.read_csv("categories.csv")
-    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].str.lower()
-    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].str.lower()
-    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].apply(lambda x: re.sub(pattern, '', x))
-    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
-    cat["IS_CHILD_CATEGORY_TO"]=cat["IS_CHILD_CATEGORY_TO"].apply(lambda x: re.sub(pattern, '', x))
-    cat["PRODUCT_CATEGORY"]=cat["PRODUCT_CATEGORY"].apply(lambda x: re.sub(pattern, '', x))
+    cat=pd.read_csv("categories_clean.csv")
     return cat
 cat=loadcat()
     
 @st.cache_data
 def loadoffer():
-    offer=pd.read_csv("offer_retailer.csv")
-    offer["OFFER"]=offer["OFFER"].str.lower()
-    offer["RETAILER"]=offer["RETAILER"].str.lower()
-    offer["BRAND"]=offer["BRAND"].str.lower()
-    offer["RETAILER"]=offer["RETAILER"].astype(str)
-    offer["OFFER"]=offer["OFFER"].apply(lambda x: re.sub(pattern, '', x))
-    offer["RETAILER"]=offer["RETAILER"].apply(lambda x: re.sub(pattern, '', x))
-    offer["BRAND"]=offer["BRAND"].apply(lambda x: re.sub(pattern, '', x))
-    offer=offer.drop_duplicates()
-    offer=offer.replace('nan','')
+    offer=pd.read_csv("offer_retailer_clean.csv")
     return offer
 offer=loadoffer()
+
+@st.cache_data
+def loadbrand_vectors():
+    brand_vectors=np.load('brand_vectors.npy',dtype=float)
+    return brand_vectors
+brand_vectors=loadbrand_vectors()
+
+@st.cache_data
+def loadoffer_vectors():
+    offer_vectors=np.load('offer_vectors.npy',dtype=float)
+    return offer_vectors
+offer_vectors=loadoffer_vectors()
+
+@st.cache_data
+def loadcategory_vectors():
+    category_vectors=np.load('category_vectors.npy',dtype=float)
+    return category_vectors
+category_vectors=loadcategory_vectors()
+
+@st.cache_data
+def loadretailer_vectors():
+    retailer_vectors=np.load('retailer_vectors.npy',dtype=float)
+    return retailer_vectors
+retailer_vectors=loadretailer_vectors()
+
+@st.cache_data
+def loadoffer_brand_vectors():
+    offer_brand_vectors=np.load('offer_brand_vectors.npy',dtype=float)
+    return offer_brand_vectors
+offer_brand_vectors=loadoffer_brand_vectors()
 
 
 
@@ -119,18 +129,6 @@ def find_brand_multiplier(b):
 
 my_bar.progress(40, text=progress_text)
 
-@st.cache_data
-def data_preprocessing():
-    df=pd.DataFrame()
-    for b in brand.BRAND.unique():
-        df_temp=find_brand_multiplier(b)
-        df_temp["BRAND"]=b
-        df = pd.concat([df, df_temp])
-    return df.merge(brand,how='right', on=['BRAND','BRAND_BELONGS_TO_CATEGORY'])
-brand=data_preprocessing()
-
-
-my_bar.progress(60, text=progress_text)
 
 #create a dictionary with parent categories and a list of their children categories
 categories={}
@@ -153,8 +151,7 @@ children=cat.PRODUCT_CATEGORY.unique()
 @st.cache_data
 def search_category(search):
     #create a similarity df for the search and all category name's
-    vectors=model.encode(list(cat['PRODUCT_CATEGORY']))
-    cosine=cosine_similarity(model.encode([search]), vectors)
+    cosine=cosine_similarity(model.encode([search]), category_vectors)
     sim=cat.copy(deep=True)
     sim['Cosine']=cosine.reshape(-1, 1)
     
@@ -186,8 +183,7 @@ def search_category(search):
     possible_offers['cat_Score']=possible_offers['cat_Score'].fillna(0)#if there is a brand thats in the offer df, but not the brand df, we fill the cat_score with 0 for that brand
     
     #similarity of search to offers
-    vectors=model.encode(list(offer['OFFER']))
-    cosine=cosine_similarity(model.encode([search]), vectors)
+    cosine=cosine_similarity(model.encode([search]), offer_vectors)
     sim=offer.copy(deep=True)
     sim['Cosine']=cosine.reshape(-1, 1)
     possible_offers=possible_offers.merge(sim,how="left",on=["OFFER","RETAILER","BRAND"])
@@ -207,9 +203,9 @@ my_bar.progress(80, text=progress_text)
 @st.cache_data
 def search_brand(search):
     #create a similarity df for the search and all brand names
-    vectors=model.encode(list(set(brand["BRAND"].values)))
-    cosine=cosine_similarity(model.encode([search]), vectors)
-    sim=pd.DataFrame(list(set(brand["BRAND"].values)),columns=["BRAND"])
+    
+    cosine=cosine_similarity(model.encode([search]), brand_vectors)
+    sim=pd.DataFrame(sorted(brand["BRAND"].values),columns=["BRAND"])
     sim['Cosine']=cosine.reshape(-1, 1)
     
     if sim.nlargest(1, 'Cosine')["Cosine"].values[0]>.7:#if there is a good match we treat the most similar brand to the search as the new search
@@ -237,8 +233,7 @@ def search_brand(search):
     possible_offers=possible_offers.drop(columns=["MULTIPLIER","Cosine"])
 
     #similarity of search to offers
-    vectors=model.encode(list(offer['OFFER']))
-    cosine=cosine_similarity(model.encode([old_search]), vectors)
+    cosine=cosine_similarity(model.encode([old_search]), offer_vectors)
     sim=offer.copy(deep=True)
     sim['Cosine']=cosine.reshape(-1, 1)
     possible_offers=possible_offers.merge(sim,on=["OFFER","RETAILER","BRAND"])
@@ -257,17 +252,14 @@ my_bar.progress(90, text=progress_text)
 # # 3. Searches by Retailer
 @st.cache_data
 def search_Retailer(search):
-    vectors=model.encode(list(offer['OFFER']))
-    cosine=cosine_similarity(model.encode([search]), vectors)
+    cosine=cosine_similarity(model.encode([search]), offer_vectors)
     sim=offer.copy(deep=True)
     sim['Cosine1']=cosine.reshape(-1, 1)
     
-    vectors=model.encode(list(offer['RETAILER']))
-    cosine=cosine_similarity(model.encode([search]), vectors)
+    cosine=cosine_similarity(model.encode([search]), retailer_vectors)
     sim['Cosine2']=cosine.reshape(-1, 1)
     
-    vectors=model.encode(list(offer['BRAND']))
-    cosine=cosine_similarity(model.encode([search]), vectors)
+    cosine=cosine_similarity(model.encode([search]), offer_brand_vectors)
     sim['Cosine3']=cosine.reshape(-1, 1)
     
     possible_offers=sim

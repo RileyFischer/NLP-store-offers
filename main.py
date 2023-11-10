@@ -55,11 +55,8 @@ if st.checkbox('See how the scores are calculated'):
     st.write("-Brands are treated equally regardless of their total number of receipts. The benefit of this is that the offers presented are based on relevance so we should always be getting the most relevant offer possible. However this can be bad since people are less likely to shop at small brands, therefor having the list be flooded with small brands compared to large brands makes the offers less relevant to the person. I choose to assume people would be just as interested in offers from small brands compared to large brands, but in reality I think it would make sense to assume people prefer offers from large brands since more people already shop there.")
     
     
-    
-progress_text = "Loading in data and tools"
-my_bar = st.progress(0, text=progress_text)
 
-@st.cache_data
+
 def loadmodel():
     model=SentenceTransformer('multi-qa-mpnet-base-cos-v1')
     return model
@@ -69,50 +66,47 @@ model=loadmodel()
 # # Load in cleaned data. Remove capitalization, special characters, and duplicate rows as seen in "Create processed data.ipynb"
 #Remove capitalization
 
-@st.cache_data
 def loadbrand():
     brand=pd.read_csv("brand_category_clean.csv")
     brand["BRAND"]=brand["BRAND"].apply(str)
     return brand
 brand=loadbrand()
 
-@st.cache_data
 def loadcat():
     cat=pd.read_csv("categories_clean.csv")
     return cat
 cat=loadcat()
     
-@st.cache_data
 def loadoffer():
     offer=pd.read_csv("offer_retailer_clean.csv")
     return offer
 offer=loadoffer()
 
-@st.cache_data
+
 def loadbrand_vectors():
     brand_vectors=np.load('brand_vectors.npy')
     return brand_vectors
 brand_vectors=loadbrand_vectors()
 
-@st.cache_data
+
 def loadoffer_vectors():
     offer_vectors=np.load('offer_vectors.npy')
     return offer_vectors
 offer_vectors=loadoffer_vectors()
 
-@st.cache_data
+
 def loadcategory_vectors():
     category_vectors=np.load('category_vectors.npy')
     return category_vectors
 category_vectors=loadcategory_vectors()
 
-@st.cache_data
+
 def loadretailer_vectors():
     retailer_vectors=np.load('retailer_vectors.npy')
     return retailer_vectors
 retailer_vectors=loadretailer_vectors()
 
-@st.cache_data
+
 def loadoffer_brand_vectors():
     offer_brand_vectors=np.load('offer_brand_vectors.npy')
     return offer_brand_vectors
@@ -128,7 +122,6 @@ def find_brand_multiplier(b):
     df=df[["BRAND_BELONGS_TO_CATEGORY","MULTIPLIER"]]
     return df
 
-my_bar.progress(40, text=progress_text)
 
 
 #create a dictionary with parent categories and a list of their children categories
@@ -143,13 +136,12 @@ parents=brand.BRAND_BELONGS_TO_CATEGORY.unique()
 for parent in parents:
     brands[parent]=list(brand[brand["BRAND_BELONGS_TO_CATEGORY"]==parent].BRAND.values)
 
-my_bar.progress(70, text=progress_text)
 
 # # 1. searches by category
 parents=cat.IS_CHILD_CATEGORY_TO.unique()
 children=cat.PRODUCT_CATEGORY.unique()
 
-@st.cache_data
+
 def search_category(search):
     #create a similarity df for the search and all category name's
     cosine=cosine_similarity(model.encode([search]), category_vectors)
@@ -197,16 +189,14 @@ def search_category(search):
 
 
 
-my_bar.progress(80, text=progress_text)
-
 
 # # 2. Searches by Brand
-@st.cache_data
+
 def search_brand(search):
     #create a similarity df for the search and all brand names
     
     cosine=cosine_similarity(model.encode([search]), brand_vectors)
-    sim=pd.DataFrame(sorted(brand["BRAND"].values),columns=["BRAND"])
+    sim=pd.DataFrame(sorted(list(set(brand["BRAND"].values))),columns=["BRAND"])
     sim['Cosine']=cosine.reshape(-1, 1)
     
     if sim.nlargest(1, 'Cosine')["Cosine"].values[0]>.7:#if there is a good match we treat the most similar brand to the search as the new search
@@ -247,11 +237,10 @@ def search_brand(search):
     return possible_offers.reset_index(drop=True)
 
 
-my_bar.progress(90, text=progress_text)
 
 
 # # 3. Searches by Retailer
-@st.cache_data
+
 def search_Retailer(search):
     cosine=cosine_similarity(model.encode([search]), offer_vectors)
     sim=offer.copy(deep=True)
@@ -271,8 +260,7 @@ def search_Retailer(search):
 
     return possible_offers.reset_index(drop=True)
 
-my_bar.progress(100, text="Data and tools sucessfully loaded.")
-my_bar.empty()
+
 
 
 search_type = st.selectbox(

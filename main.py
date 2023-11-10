@@ -89,31 +89,31 @@ offer=loadoffer()
 
 @st.cache_data
 def loadbrand_vectors():
-    brand_vectors=np.load('brand_vectors.npy',dtype=float)
+    brand_vectors=np.load('brand_vectors.npy')
     return brand_vectors
 brand_vectors=loadbrand_vectors()
 
 @st.cache_data
 def loadoffer_vectors():
-    offer_vectors=np.load('offer_vectors.npy',dtype=float)
+    offer_vectors=np.load('offer_vectors.npy')
     return offer_vectors
 offer_vectors=loadoffer_vectors()
 
 @st.cache_data
 def loadcategory_vectors():
-    category_vectors=np.load('category_vectors.npy',dtype=float)
+    category_vectors=np.load('category_vectors.npy')
     return category_vectors
 category_vectors=loadcategory_vectors()
 
 @st.cache_data
 def loadretailer_vectors():
-    retailer_vectors=np.load('retailer_vectors.npy',dtype=float)
+    retailer_vectors=np.load('retailer_vectors.npy')
     return retailer_vectors
 retailer_vectors=loadretailer_vectors()
 
 @st.cache_data
 def loadoffer_brand_vectors():
-    offer_brand_vectors=np.load('offer_brand_vectors.npy',dtype=float)
+    offer_brand_vectors=np.load('offer_brand_vectors.npy')
     return offer_brand_vectors
 offer_brand_vectors=loadoffer_brand_vectors()
 

@@ -260,6 +260,7 @@ search = st.text_input('Search by product, brand or category', '')
 if search!='':
     result = pd.concat([search_Retailer(search),search_brand(search),search_category(search)]).sort_values(by=['Score'],ascending=False)
     result=result.drop_duplicates(subset=["OFFER","RETAILER","BRAND"],keep='first')
+    result=result.reset_index(drop=True)
     st.dataframe(result)
     
 

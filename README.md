@@ -20,6 +20,7 @@ Acceptance Criteria:
 
 # How to run 
 ### Website:
+- **Note that the website may be down because it is limited by 1gb of data and the csv files are large enough to sometimes crash it**
 https://nlp-store-offers.streamlit.app/
 
 

@@ -19,9 +19,12 @@ Acceptance Criteria:
 
 
 # How to run 
+### Website:
+https://nlp-store-offers.streamlit.app/
 
 
-### Streamlit app:
+
+### Streamlit app:(In case website is down)
 1.Clone repository:
 ```
    git clone https://github.com/RileyFischer/NLP-store-offers

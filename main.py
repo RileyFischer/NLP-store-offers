@@ -191,7 +191,6 @@ def search_category(search):
 
 
 # # 2. Searches by Brand
-
 def search_brand(search):
     #create a similarity df for the search and all brand names
     
@@ -240,7 +239,6 @@ def search_brand(search):
 
 
 # # 3. Searches by Retailer
-
 def search_Retailer(search):
     cosine=cosine_similarity(model.encode([search]), offer_vectors)
     sim=offer.copy(deep=True)
@@ -262,41 +260,12 @@ def search_Retailer(search):
 
 
 
-
-search_type = st.selectbox(
-    'How would you like to search for an offer?',
-    ('Category', 'Brand', 'Retailer'))
-
-if search_type=='Category':
-    search = st.text_input('Category name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        df=search_category(search)
-        if n:
-            st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
+search = st.text_input('Search by product, brand or category', '')
+if search!='':
+    df=search_category(search)
+    st.dataframe(df)
     
-if search_type=='Brand':
-    search = st.text_input('Brand name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        st.write('This may take a minute or two for Brand search.')
-        df=search_brand(search)
-        if n:
-            st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
-            
-if search_type=='Retailer':
-    search = st.text_input('Retailer name', '')
-    if search!='':
-        n=st.number_input('How many offers would you like?',step=1)
-        df=search_Retailer(search)
-        if n:
-            st.dataframe(df.head(n))
-        else:
-            st.dataframe(df)
+
             
             
 

@@ -67,48 +67,48 @@ model=loadmodel()
 #Remove capitalization
 
 def loadbrand():
-    brand=pd.read_csv("brand_category_clean.csv")
+    brand=pd.read_csv("Data/brand_category_clean.csv")
     brand["BRAND"]=brand["BRAND"].apply(str)
     return brand
 brand=loadbrand()
 
 def loadcat():
-    cat=pd.read_csv("categories_clean.csv")
+    cat=pd.read_csv("Data/categories_clean.csv")
     return cat
 cat=loadcat()
     
 def loadoffer():
-    offer=pd.read_csv("offer_retailer_clean.csv")
+    offer=pd.read_csv("Data/offer_retailer_clean.csv")
     return offer
 offer=loadoffer()
 
 
 def loadbrand_vectors():
-    brand_vectors=np.load('brand_vectors.npy')
+    brand_vectors=np.load('Data/brand_vectors.npy')
     return brand_vectors
 brand_vectors=loadbrand_vectors()
 
 
 def loadoffer_vectors():
-    offer_vectors=np.load('offer_vectors.npy')
+    offer_vectors=np.load('Data/offer_vectors.npy')
     return offer_vectors
 offer_vectors=loadoffer_vectors()
 
 
 def loadcategory_vectors():
-    category_vectors=np.load('category_vectors.npy')
+    category_vectors=np.load('Data/category_vectors.npy')
     return category_vectors
 category_vectors=loadcategory_vectors()
 
 
 def loadretailer_vectors():
-    retailer_vectors=np.load('retailer_vectors.npy')
+    retailer_vectors=np.load('Data/retailer_vectors.npy')
     return retailer_vectors
 retailer_vectors=loadretailer_vectors()
 
 
 def loadoffer_brand_vectors():
-    offer_brand_vectors=np.load('offer_brand_vectors.npy')
+    offer_brand_vectors=np.load('Data/offer_brand_vectors.npy')
     return offer_brand_vectors
 offer_brand_vectors=loadoffer_brand_vectors()
 
@@ -166,10 +166,11 @@ def search_category(search):
     #find the brands associated with these categories and weigh the brand by the number of their recipts are from these categories
     possible_brands=brand.copy(deep=True)
     possible_brands.loc[~possible_brands["BRAND_BELONGS_TO_CATEGORY"].isin(possible_cats), "MULTIPLIER"]=0
+    possible_brands.loc[possible_brands["BRAND_BELONGS_TO_CATEGORY"].isin(possible_cats), "MULTIPLIER"]=1
     possible_brands=possible_brands.merge(sim,left_on="BRAND_BELONGS_TO_CATEGORY",right_on="PRODUCT_CATEGORY")
     #Then multiply the weights to get a score that also takes into account how similar the brand is to the original search
     possible_brands["cat_Score"]=possible_brands["MULTIPLIER"]*possible_brands["Cosine"]
-    possible_brands=possible_brands.groupby("BRAND").sum("cat_Score")#This score represents how likely the brand has offers related to the search term
+    possible_brands=possible_brands.groupby("BRAND").mean("cat_Score")#This score represents how likely the brand has offers related to the search term
     #find the offers from the brands above
     possible_offers=offer.merge(possible_brands,how="left", left_on='BRAND', right_on='BRAND')
     possible_offers=possible_offers.drop(columns=["MULTIPLIER","Cosine","RECEIPTS"])
@@ -182,9 +183,7 @@ def search_category(search):
     possible_offers=possible_offers.merge(sim,how="left",on=["OFFER","RETAILER","BRAND"])
     possible_offers["Score"]=(possible_offers["cat_Score"]+possible_offers["Cosine"])/2
     possible_offers=possible_offers.drop(columns=["cat_Score","Cosine"])
-    
-    possible_offers=possible_offers.sort_values(by=['Score'],ascending=False)
-    
+      
     return possible_offers.reset_index(drop=True)
 
 
@@ -230,9 +229,7 @@ def search_brand(search):
 
     possible_offers["Score"]=(possible_offers["Brand_Score"]+possible_offers["Cosine"])/2
     possible_offers=possible_offers.drop(columns=["Brand_Score","Cosine","BRAND_BELONGS_TO_CATEGORY","MULTIPLIER_x","MULTIPLIER_y","RECEIPTS"])
-    
-    possible_offers=possible_offers.sort_values(by=['Score'],ascending=False)
-    
+        
     return possible_offers.reset_index(drop=True)
 
 
@@ -254,7 +251,6 @@ def search_Retailer(search):
     
     possible_offers["Score"]=(possible_offers["Cosine1"]+possible_offers["Cosine2"]+possible_offers["Cosine3"])/3
     possible_offers=possible_offers.drop(columns=["Cosine1","Cosine2","Cosine3"])
-    possible_offers=possible_offers.sort_values(by=['Score'],ascending=False)
 
     return possible_offers.reset_index(drop=True)
 
@@ -262,8 +258,9 @@ def search_Retailer(search):
 
 search = st.text_input('Search by product, brand or category', '')
 if search!='':
-    df=search_category(search)
-    st.dataframe(df)
+    result = pd.concat([search_Retailer(search),search_brand(search),search_category(search)]).sort_values(by=['Score'],ascending=False)
+    result=result.drop_duplicates(subset=["OFFER","RETAILER","BRAND"],keep='first')
+    st.dataframe(result)
     
 
             

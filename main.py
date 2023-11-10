@@ -4,6 +4,7 @@
 import pandas as pd
 import warnings
 import re
+import numpy as np
 warnings.filterwarnings("ignore")
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity

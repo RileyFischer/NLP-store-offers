@@ -47,7 +47,9 @@ Acceptance Criteria:
 - **Data Cleaning**
 - **Semantic similarity**: Using pretrained models to find the semantic similarity of text.
 - **Social Network Analysis**: Using the relationship of categories to create and use a social network and grouping searches into relevant categories.
-
+- **Fast search**: Each search should just take a second or two at most
+- **Single search bar**: By having one search bar the user is presented with a simple and intuitive app that they can use to search for whatever they're thinking of and get offers back, without thinking about whether they want to know about categories, retailers, or brands.
+  
 # Results:
 
 
@@ -90,6 +92,8 @@ $$score|offer,brand,retailer=\frac{s(offer)+s(brand)+s(retailer)}{3}$$
     
 
 # Notes
+- ** The search is done seperatly by category, brand, and retailer and then the searches are combined by score so that the user can just do one search without differentiating what type of search they want to do.**
+
 - **One assumption I made is the the receipts column coresponds to the number of times an offer within that category for the brand has been used.**
 
 - **For the cosine similarity score I used the sentence transformer \"multi-qa-mpnet-base-cos-v1\" on the offers, brands, retailer, and search strings. I then measured the similarity of vectors from the sentence transformer by using cosine similarity.**

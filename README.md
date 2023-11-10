@@ -50,11 +50,9 @@ Acceptance Criteria:
 
 # Results:
 
-![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/44df2b07-ef03-4325-b613-686e6a3983ce)
-___
-![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/ba1fb8c3-8036-4484-b5ff-ceca26dcfb7d)
-___
-![image](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/75a61248-fabe-46cc-8472-81a365228536)  
+
+  ![Screenshot 2023-11-10 140022](https://github.com/RileyFischer/NLP-store-offers/assets/55674235/f134411d-5caf-4d9e-a2a9-8064398cf11b)
+
 
 # Notation
 $C:=$ The list of all possible categories

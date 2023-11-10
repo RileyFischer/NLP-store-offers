@@ -25,7 +25,7 @@ https://nlp-store-offers.streamlit.app/
 
 
 
-### Streamlit app:(In case website is down)
+### Run Streamlit app locally: (In case website is down)
 1.Clone repository:
 ```
    git clone https://github.com/RileyFischer/NLP-store-offers

@@ -92,7 +92,7 @@ $$score|offer,brand,retailer=\frac{s(offer)+s(brand)+s(retailer)}{3}$$
     
 
 # Notes
-- ** The search is done seperatly by category, brand, and retailer and then the searches are combined by score so that the user can just do one search without differentiating what type of search they want to do.**
+- **The search is done seperatly by category, brand, and retailer and then the searches are combined by score so that the user can just do one search without differentiating what type of search they want to do.**
 
 - **One assumption I made is the the receipts column coresponds to the number of times an offer within that category for the brand has been used.**
 
